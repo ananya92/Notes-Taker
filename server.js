@@ -17,8 +17,19 @@ app.get("/notes", function(req, res) {
     res.sendFile(path.join(__dirname, "notes.html"));
 });
 
+//Defining the API to read the notes from db.json and return the notes list as JSON object
 app.get("/api/notes", function(req, res) {
-
+    var fileName = path.join(__dirname,"/db/db.json");
+    fs.readFile(fileName,"utf8",function(err, data){
+        if(err) throw err;
+        console.log(data);
+        if(data !== undefined && data !== "") {
+            return res.json(JSON.parse(data));
+        }
+        else {
+            return res.json(false);
+        }
+    });
 });
 
 app.post("/api/notes", function(req, res) {
