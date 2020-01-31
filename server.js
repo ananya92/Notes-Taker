@@ -4,7 +4,8 @@ var fs = require("fs");
 var app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
+//Using the static middleware function to server the static files in Express from the defined folder name
+app.use(express.static('assets'));
 
 var PORT = process.env.PORT || 3000;
 
