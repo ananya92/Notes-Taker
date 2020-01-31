@@ -22,7 +22,6 @@ app.get("/api/notes", function(req, res) {
     var fileName = path.join(__dirname,"/db/db.json");
     fs.readFile(fileName,"utf8",function(err, data){
         if(err) throw err;
-        console.log(data);
         if(data !== undefined && data !== "") {
             return res.json(JSON.parse(data));
         }
@@ -35,7 +34,6 @@ app.get("/api/notes", function(req, res) {
 //Defining the POST API to add a new note to the db.json
 app.post("/api/notes", function(req, res) {
     var newNote = req.body;
-    console.log(newNote);
     var notesList = [];
     var fileName = path.join(__dirname,"/db/db.json");
     fs.readFile(fileName,"utf8",function(err, data){
@@ -68,8 +66,41 @@ app.post("/api/notes", function(req, res) {
     });
 });
 
-app.delete("/api/notes/{id}", function(req, res) {
-
+//Defining the DELETE API to delete the note whose id is passed as parameter
+app.delete("/api/notes/:id", function(req, res) {
+    var id = req.params.id;
+    var notesList = [];
+    var fileName = path.join(__dirname,"/db/db.json");
+    fs.readFile(fileName,"utf8",function(err, data){
+        if(err) throw err;
+        //Check if the db.json is empty
+        if(data !== undefined && data !== "") {
+            notesList = JSON.parse(data);
+            //Delete the note whose id matches the passed id value
+            for(var i=0; i<notesList.length; i++) {
+                if(notesList[i].id == id) {
+                    notesList.splice(i,1);
+                    i--;
+                    break;
+                }
+            }
+            //Redefine the ids of the notes in the database
+            for(var i=0; i<notesList.length; i++) {
+                notesList[i].id = i+1;
+            }
+            //Write the entire notes list back to db.json
+            fs.writeFile(fileName, JSON.stringify(notesList), function(err) {
+                if(err) throw err;
+                res.json({
+                    status: "success"
+                });
+            });
+        }
+        else {
+            // Status code for No Content
+            res.status(204);
+        }
+    });
 });
 
 app.listen(PORT, function() {
