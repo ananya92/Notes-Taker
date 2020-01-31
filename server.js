@@ -32,8 +32,40 @@ app.get("/api/notes", function(req, res) {
     });
 });
 
+//Defining the POST API to add a new note to the db.json
 app.post("/api/notes", function(req, res) {
-
+    var newNote = req.body;
+    console.log(newNote);
+    var notesList = [];
+    var fileName = path.join(__dirname,"/db/db.json");
+    fs.readFile(fileName,"utf8",function(err, data){
+        if(err) throw err;
+        //Check if the db.json is empty
+        if(data !== undefined && data !== "") {
+            notesList = JSON.parse(data);
+            notesList.push({
+                //Add 1 to the last note's id and assign it to the new note's id
+                id: notesList.length + 1,
+                title: newNote.title,
+                text: newNote.text
+            });
+        }
+        else {
+            //db.json is empty hence assign the new note as the first note with id 1
+            notesList.push({
+                id: 1,
+                title: newNote.title,
+                text: newNote.text
+            });
+        }
+        //Write the entire notes list back to db.json
+        fs.writeFile(fileName, JSON.stringify(notesList), function(err) {
+            if(err) throw err;
+            res.json({
+                status: "success"
+            });
+        });
+    });
 });
 
 app.delete("/api/notes/{id}", function(req, res) {
